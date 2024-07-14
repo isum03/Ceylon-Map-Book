@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Website Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url(feedbackback.jpg);
+        }
+        .feedback-form {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .feedback-form h2 {
+            text-align: center;
+        }
+        .feedback-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .feedback-form input, .feedback-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .feedback-form .rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .feedback-form .rating input {
+            display: none;
+        }
+        .feedback-form .rating label {
+            font-size: 2em;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .feedback-form .rating input:checked ~ label,
+        .feedback-form .rating label:hover,
+        .feedback-form .rating label:hover ~ label {
+            color: #f5b301;
+        }
+        .feedback-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .feedback-form .error {
+            color: red;
+            display: none;
+        }
+        .feedback-form .success {
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="feedback-form">
+    <h2>Travel Website Feedback</h2>
+    <div class="success">Thank you for your feedback!</div>
+    <form id="feedbackForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="rating">Rating:</label>
+        <div class="rating">
+            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 stars">★</label>
+            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+            <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 star">★</label>
+        </div>
+        
+        <label for="comments">Comments:</label>
+        <textarea id="comments" name="comments" rows="4" required></textarea>
+        
+        <button type="submit">Submit Feedback</button>
+    </form>
+    <div class="error">An error occurred while submitting your feedback. Please try again.</div>
+</div>
+
+<script>
+    document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Clear previous messages
+        document.querySelector('.success').style.display = 'none';
+        document.querySelector('.error').style.display = 'none';
+
+        // Get form data
+        const formData = new FormData(event.target);
+
+        // Check if rating is selected
+        if (!formData.get('rating')) {
+            document.querySelector('.error').textContent = 'Please select a rating.';
+            document.querySelector('.error').style.display = 'block';
+            return;
+        }
+
+        // Perform AJAX request
+        fetch('https://formspree.io/f/mqkjedne', {  // Example endpoint, replace with your Formspree endpoint
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                document.querySelector('.success').style.display = 'block';
+                event.target.reset(); // Reset the form
+            } else {
+                return response.json().then(data => {
+                    if (data.errors) {
+                        throw new Error(data.errors.map(error => error.message).join(', '));
+                    } else {
+                        throw new Error('Unknown error occurred');
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); // Log the error for debugging
+            document.querySelector('.error').textContent = `An error occurred while submitting your feedback: ${error.message}. Please try again.`;
+            document.querySelector('.error').style.display = 'block';
+        });
+    });
+</script>
+
+</body>
+</html>
+
